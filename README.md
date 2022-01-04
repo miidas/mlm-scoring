@@ -49,7 +49,7 @@ print(scorer.score_sentences(["Hello world!"]))
 print(scorer.score_sentences(["Hello world!"], per_token=True))
 # >> [[-8.293947219848633, -6.387561798095703, -1.3138668537139893]]
 
-# Japanese (MXNet MLMs)
+# Japanese (PyTorch MLMs)
 model, vocab, tokenizer = get_pretrained(ctxs, 'cl-tohoku/bert-base-japanese')
 scorer = MLMScorerPT(model, vocab, tokenizer, ctxs)
 print(scorer.score_sentences(["こんにちは、世界!"]))
