@@ -91,7 +91,17 @@ def get_pretrained(ctxs: List[mx.Context], name: str = 'bert-base-en-uncased', p
         model_fullname = name
         model_name = model_fullname.split('/')[-1]
 
-        if model_name.startswith('albert-'):
+        if model_fullname.startswith('cl-tohoku/bert-'):
+
+            if params_file is None:
+                model, loading_info = BertForMaskedLMOptimized.from_pretrained(model_fullname, output_loading_info=True)
+            else:
+                model, loading_info = BertForMaskedLMOptimized.from_pretrained(params_file, output_loading_info=True)
+
+            tokenizer = transformers.tokenization_bert_japanese.BertJapaneseTokenizer.from_pretrained(model_fullname)
+            vocab = None
+
+        elif model_name.startswith('albert-'):
 
             if params_file is None:
                 model, loading_info = AlbertForMaskedLMOptimized.from_pretrained(model_fullname, output_loading_info=True)
