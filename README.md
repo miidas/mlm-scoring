@@ -48,6 +48,35 @@ print(scorer.score_sentences(["Hello world!"]))
 # >> [-15.995375633239746]
 print(scorer.score_sentences(["Hello world!"], per_token=True))
 # >> [[-8.293947219848633, -6.387561798095703, -1.3138668537139893]]
+
+# Japanese (MXNet MLMs)
+model, vocab, tokenizer = get_pretrained(ctxs, 'cl-tohoku/bert-base-japanese')
+scorer = MLMScorerPT(model, vocab, tokenizer, ctxs)
+print(scorer.score_sentences(["こんにちは、世界!"]))
+# >> [-11.893018969480181]
+print(scorer.score_sentences(["こんにちは、世界!"], per_token=True))
+# >> [[None, -0.00012838016846217215, -0.2347521334886551, -0.00629359669983387, -1.2839869260787964, -5.64776611328125, -4.720091819763184, None]]
+
+model, vocab, tokenizer = get_pretrained(ctxs, 'cl-tohoku/bert-base-japanese-whole-word-masking')
+scorer = MLMScorerPT(model, vocab, tokenizer, ctxs)
+print(scorer.score_sentences(["こんにちは、世界!"]))
+# >> [-21.076359182945453]
+print(scorer.score_sentences(["こんにちは、世界!"], per_token=True))
+# >> [[None, -0.0014072287594899535, -0.07990188151597977, -2.3677682876586914, -1.0058914422988892, -10.913361549377441, -6.708028793334961, None]]
+
+model, vocab, tokenizer = get_pretrained(ctxs, 'cl-tohoku/bert-base-japanese-char')
+scorer = MLMScorerPT(model, vocab, tokenizer, ctxs)
+print(scorer.score_sentences(["こんにちは、世界!"]))
+# >> [-8.106433772969467]
+print(scorer.score_sentences(["こんにちは、世界!"], per_token=True))
+# >> [[None, -0.00017212340026162565, -7.128461584215984e-05, -0.0003200257197022438, -0.000310730334604159, -0.04472477734088898, -2.0046865940093994, -0.06974268704652786, -0.013195215724408627, -5.973210334777832, None]]
+
+model, vocab, tokenizer = get_pretrained(ctxs, 'cl-tohoku/bert-base-japanese-char-whole-word-masking')
+scorer = MLMScorerPT(model, vocab, tokenizer, ctxs)
+print(scorer.score_sentences(["こんにちは、世界!"]))
+# >> [-20.892313688993454]
+print(scorer.score_sentences(["こんにちは、世界!"], per_token=True))
+# >> [[None, -4.659216403961182, -0.42353877425193787, -0.2219201922416687, -1.5305637121200562, -1.9007164239883423, -3.515786647796631, -0.7679498791694641, -1.087415337562561, -6.785206317901611, None]]
 ```
 (MXNet and PyTorch interfaces will be unified soon!)
 
