@@ -537,6 +537,15 @@ masked_id = {}
             return scores.tolist(), true_tok_lens
 
 
+class _ModelWrapper(torch.nn.Module):
+
+    def __init__(self, module):
+        super().__init__()
+        self.module = module
+
+    def forward(self, *input, **kwargs):
+        return self.module(*input, **kwargs)
+
 
 # TODO: Dedup with BaseScorer's score()
 class MLMScorerPT(BaseScorer):
@@ -558,13 +567,18 @@ class MLMScorerPT(BaseScorer):
             raise ValueError("Language was not set but this model uses language embeddings!")
 
         ### PyTorch-based
-        self._device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        mx_ctx0 = self._ctxs[0]
+        self._device = torch.device('cuda:' + str(mx_ctx0.device_id) if mx_ctx0.device_type == 'gpu' else 'cpu')
         torch.manual_seed(0)
         torch.cuda.manual_seed_all(0)
-        # TODO: This does not restrict to specific GPUs however, use CUDA_VISIBLE_DEVICES?
-        # TODO: It also unnecessarily locks the GPUs to each other
         self._model.to(self._device)
-        self._model = torch.nn.DataParallel(self._model, device_ids=[0])
+        if mx_ctx0.device_type == 'gpu':
+          device_ids = []
+          for ctx in self._ctxs:
+              device_ids.append(ctx.device_id)
+          self._model = torch.nn.DataParallel(self._model, device_ids=device_ids)
+        else:
+          self._model = _ModelWrapper(self._model)
         self._model.eval()
 
 
@@ -697,7 +711,8 @@ class MLMScorerPT(BaseScorer):
 
             for ctx_idx, (sent_idxs, token_ids, valid_length, masked_positions, token_masked_ids, normalization) in enumerate((batch,)):
 
-                ctx = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+                mx_ctx = self._ctxs[ctx_idx]
+                ctx = torch.device('cuda:' + str(mx_ctx.device_id) if mx_ctx.device_type == 'gpu' else 'cpu')
                 batch_size += sent_idxs.shape[0]
 
                 # TODO: Super inefficient where we go from MXNet to NumPy to PyTorch
