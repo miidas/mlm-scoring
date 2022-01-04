@@ -15,7 +15,7 @@ This package uses masked LMs like [BERT](https://arxiv.org/abs/1810.04805), [RoB
 
 Python 3.6+ is required. Clone this repository and install:
 ```bash
-pip install -e .
+pip install git+https://github.com/miidas/mlm-scoring
 pip install torch mxnet-cu102mkl  # Replace w/ your CUDA version; mxnet-mkl if CPU only.
 ```
 Some models are via [GluonNLP](https://github.com/dmlc/gluon-nlp) and others are via [🤗 Transformers](https://github.com/huggingface/transformers), so for now we require both [MXNet](https://mxnet.apache.org/) and [PyTorch](https://pytorch.org/). You can now import the library directly:
